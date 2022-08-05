@@ -10,10 +10,25 @@ pub mod tests {
     use std::*;
 
     use crate::esp32::traits::WifiManagerInternalFuncs;
+    use crate::WifiManager;
     use crate::options::{OptionSerializer, WifiOptions};
     struct DummyWifiManager {
         versiondata: Vec<u8>,
         rawdata: Vec<u8>,
+    }
+
+    impl WifiManager for DummyWifiManager {
+        type Err = ();
+        type WifiManagerType = DummyWifiManager;
+        fn new() -> Result<Self::WifiManagerType, Self::Err> {
+            Ok(DummyWifiManager {
+                versiondata: Vec::new(),
+                rawdata: Vec::new(),
+            })
+        }
+        fn start(&mut self) -> Result<(), Self::Err> {
+            Ok(())
+        }
     }
 
     impl WifiManagerInternalFuncs<String> for DummyWifiManager {
