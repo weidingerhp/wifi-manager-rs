@@ -61,7 +61,7 @@ impl WifiManagerInternalFuncs<EspError> for Esp32WifiManager {
                     buf.reserve(len);
 
                     match self.storage.get_raw(name, &mut buf) {
-                        Ok(val) => Option::Some(buf), 
+                        Ok(_val) => Option::Some(buf), 
                         Err(err) => {
                             info!("Key {} read returned {}", name, err);
                             Option::None
