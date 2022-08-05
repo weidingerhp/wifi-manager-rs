@@ -1,9 +1,6 @@
 
 #[cfg(target_arch="xtensa")]
-use embedded_svc::storage::Storage;
-
-#[cfg(target_arch="xtensa")]
-use embedded_svc::storage::StorageBase;
+use embedded_svc::storage::*;
 
 extern crate alloc;
 use alloc::vec::Vec;
@@ -45,9 +42,35 @@ impl WifiManagerInternalFuncs<EspError> for Esp32WifiManager {
         
     }
 
-    fn read_raw_data_from_storage(&mut self, name: &str) -> Option<Vec<u8> > {
-        match self.storage.get_raw(name) {
-            Ok(val) => val,
+    fn read_raw_data_from_storage(&mut self, name: &str) -> Option<Vec<u8>> {
+        match self.storage.contains(name) {
+            Ok(val) => {
+                if val {
+                    let mut buf = Vec::<u8>::new();
+                    let len: usize = match self.storage.len(name) {
+                        Ok(len) => match len {
+                            Some(len) => len,
+                            None => 0 as usize
+                        },
+                        Err(err) => {
+                            info!("Key {} read returned {}", name, err);
+                            0 as usize
+                        },
+                    };
+                    
+                    buf.reserve(len);
+
+                    match self.storage.get_raw(name, &mut buf) {
+                        Ok(val) => Option::Some(buf), 
+                        Err(err) => {
+                            info!("Key {} read returned {}", name, err);
+                            Option::None
+                        },
+                    }
+                } else {
+                    Option::None
+                }
+            },
             Err(err) => {
                 info!("Key {} read returned {}", name, err);
                 Option::None
@@ -62,7 +85,7 @@ impl WifiManagerInternalFuncs<EspError> for Esp32WifiManager {
         }
 
         match data {
-            Some(content) => self.storage.put_raw(name, content),
+            Some(content) => self.storage.put_raw(name, content.as_slice()),
             None => Ok(true)
         }
     }
