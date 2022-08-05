@@ -2,6 +2,9 @@
 #[cfg(target_arch="xtensa")]
 use embedded_svc::storage::Storage;
 
+#[cfg(target_arch="xtensa")]
+use embedded_svc::storage::StorageBase;
+
 extern crate alloc;
 use alloc::vec::Vec;
 use log::info;
