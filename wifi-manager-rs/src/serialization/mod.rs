@@ -1,8 +1,10 @@
+#[cfg(test)] 
+pub mod test;
+
 extern crate alloc;
 use alloc::vec::Vec;
 
 use crate::{options::WifiOptions, WifiManager};
-
 
 pub trait WifiManagerInternalFuncs<Err> : WifiManager {
     fn start(&mut self) -> Result<(), Err>;
