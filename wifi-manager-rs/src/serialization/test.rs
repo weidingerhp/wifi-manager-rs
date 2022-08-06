@@ -9,9 +9,9 @@ pub mod tests {
     use simplelog::*;
     use std::*;
 
-    use crate::esp32::traits::WifiManagerInternalFuncs;
     use crate::WifiManager;
     use crate::options::{OptionSerializer, WifiOptions};
+    use crate::serialization::WifiManagerInternalFuncs;
     struct DummyWifiManager {
         versiondata: Vec<u8>,
         rawdata: Vec<u8>,
@@ -83,7 +83,7 @@ pub mod tests {
             todo!()
         }
 
-        fn try_connect_wifi(&mut self, opts: &crate::options::WifiOptions) -> bool {
+        fn try_connect_wifi(&mut self, _opts: &crate::options::WifiOptions) -> bool {
             todo!()
         }
     }
@@ -98,7 +98,7 @@ pub mod tests {
         )
         .unwrap();
 
-        let mut testMgr = DummyWifiManager {
+        let mut test_mgr = DummyWifiManager {
             versiondata: Vec::new(),
             rawdata: Vec::new(),
         };
@@ -109,9 +109,9 @@ pub mod tests {
             password: "pass".to_string(),
         };
 
-        OptionSerializer::write(&mut testMgr, &opts).unwrap();
+        OptionSerializer::write(&mut test_mgr, &opts).unwrap();
 
-        let newopts_opt_res = OptionSerializer::read(&mut testMgr);
+        let newopts_opt_res = OptionSerializer::read(&mut test_mgr);
         
         let newopts = newopts_opt_res.unwrap().unwrap();
 
@@ -119,7 +119,7 @@ pub mod tests {
         assert_eq!(opts.encrypted, newopts.encrypted, "Testing Encrypted");
         assert_eq!(opts.password, newopts.password, "Testing Password");
 
-        info!("Version: {:x?}", testMgr.versiondata);
-        info!("Raw: {:x?}", testMgr.rawdata);
+        info!("Version: {:x?}", test_mgr.versiondata);
+        info!("Raw: {:x?}", test_mgr.rawdata);
     }
 }
