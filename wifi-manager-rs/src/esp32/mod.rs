@@ -1,9 +1,12 @@
 extern crate alloc;
+use core::borrow::BorrowMut;
+
 use alloc::boxed::Box;
 use alloc::sync::Arc;
 use esp_idf_svc::{nvs::{EspDefaultNvs, EspNvs}, wifi::EspWifi, netif::{EspNetifStack}, sysloop::EspSysLoopStack};
 use esp_idf_svc::nvs_storage::{EspNvsStorage};
-use esp_idf_sys::EspError;
+use esp_idf_sys::{EspError};
+use log::info;
 
 mod impls;
 
@@ -14,16 +17,23 @@ pub struct Esp32WifiManager {
 }
 
 impl Esp32WifiManager {
-    fn new() -> Result<Esp32WifiManager, EspError> {
-        let nvs_storage = Arc::new(EspNvs::new("wifi-manager").unwrap());
-        let storage = EspNvsStorage::new(nvs_storage, "data", true).unwrap();
-        let nvs_default = Arc::new(EspDefaultNvs::new().unwrap());
-        let netif = Arc::new(EspNetifStack::new().unwrap());
-        let sysloop = Arc::new(EspSysLoopStack::new().unwrap());
-        let wifi = Box::new(EspWifi::new(netif.clone(), sysloop.clone(), nvs_default.clone()).unwrap());
+    pub fn new(netif: Arc<EspNetifStack>, sysloop: Arc<EspSysLoopStack>, default_nvs: Arc<EspDefaultNvs>) -> Result<Esp32WifiManager, EspError> {
+        info!("Creating EspNvsStorage");
+        let storage = EspNvsStorage::new_default(default_nvs.clone(), "wmgrdta", true)?;
+        info!("creating EspWifi");
+        let wifi = Box::new(EspWifi::new(netif.clone(), sysloop.clone(), default_nvs.clone())?);
+        info!("Finished - returning new Esp32WifiManager");
         Ok(Esp32WifiManager {
             storage: storage,
             wifi: wifi
         })
+    }
+
+    fn drop(&mut self) {
+        info!("Dropping Esp32WifiManager");
+        info!("dropping wifi");
+        drop(self.wifi);
+        info!("dropping storage");
+        drop(self.storage);
     }
 }

@@ -9,9 +9,10 @@ mod options;
 pub trait WifiManager {
     type Err;
     type WifiManagerType;
+    type WifiType;
 
-    fn new() -> Result<Self::WifiManagerType, Self::Err>;
     fn start(&mut self) -> Result<(), Self::Err>;
+    fn get_wifi(&self) -> Result<&Self::WifiType, Self::Err>;
 
 }
 
