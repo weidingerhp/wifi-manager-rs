@@ -31,9 +31,5 @@ impl Esp32WifiManager {
 
     fn drop(&mut self) {
         info!("Dropping Esp32WifiManager");
-        info!("dropping wifi");
-        drop(self.wifi);
-        info!("dropping storage");
-        drop(self.storage);
     }
 }
